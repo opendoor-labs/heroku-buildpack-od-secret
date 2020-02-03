@@ -1,13 +1,30 @@
 #!/usr/bin/env bash
 # bin/compile <build-dir> <cache-dir> <env-dir>
 
-# Fail fast
-set -e
+### Configure environment
 
-# Debug
-# set -x
+set -o errexit    # always exit on error
+set -o pipefail   # don't ignore exit codes when piping output
+unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
 
-BUILD_DIR=$1
+### Configure directories
+
+BUILD_DIR=${1:-}
+CACHE_DIR=${2:-}
+ENV_DIR=${3:-}
+
+### Load the standard lib
+
+STDLIB_FILE=$(mktemp -t stdlib.XXXXX)
+curl --silent --retry 5 --retry-max-time 15 'https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh' > "$STDLIB_FILE"
+source "$STDLIB_FILE"
+
+### Load env vars
+
+export_env "$ENV_DIR"
+
+### OD Secret Stuff
+
 VENDOR_DIR="$BUILD_DIR/vendor/od-secret/"
 PROFILE_PATH="$BUILD_DIR/.profile.d/od-secret.sh"
 
@@ -15,8 +32,7 @@ mkdir -p $VENDOR_DIR
 mkdir -p $(dirname $PROFILE_PATH)
 
 echo "-----> Fetching and vendoring od-secret-env"
-# TODO: change to od-secret with s3 auth
-aws s3 cp ***REMOVED*** "$VENDOR_DIR"
+aws s3 cp "$OD_SECRET_S3_PATH" "$VENDOR_DIR"
 chmod +x "$VENDOR_DIR/od-secret-env"
 
 echo "export PATH=\$PATH:/app/vendor/od-secret/od-secret-env" >> $PROFILE_PATH
