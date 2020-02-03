@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "OD Secret" && exit 0
+
