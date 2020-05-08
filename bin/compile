@@ -19,6 +19,11 @@ STDLIB_FILE=$(mktemp -t stdlib.XXXXX)
 curl --silent --retry 5 --retry-max-time 15 'https://lang-common.s3.amazonaws.com/buildpack-stdlib/v8/stdlib.sh' > "$STDLIB_FILE"
 source "$STDLIB_FILE"
 
+### Debug env vars
+printenv
+echo "ENV_DIR:"
+for x in "$ENV_DIR"/*; do; echo $x; cat $x; done;
+
 ### Load env vars
 
 export_env "$ENV_DIR"
