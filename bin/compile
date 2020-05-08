@@ -22,7 +22,10 @@ source "$STDLIB_FILE"
 ### Debug env vars
 printenv
 echo "ENV_DIR:"
-for x in "$ENV_DIR"/*; do; echo $x; cat $x; done;
+for x in "$ENV_DIR"/*; do
+  echo $x
+  cat $x
+done
 
 ### Load env vars
 
